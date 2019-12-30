@@ -24,11 +24,6 @@ public class UnleashedRequestBuilder {
 
     }
 
-    public UnleashedRequestBuilder path(UnleashedPath path) {
-        this.path = path.getPath();
-        return this;
-    }
-
     public UnleashedRequestBuilder path(String path) {
         this.path = path;
         return this;
@@ -67,7 +62,7 @@ public class UnleashedRequestBuilder {
             throw new IllegalArgumentException("Invalid argument supplied to URI", e);
         }
 
-        if(this.signatureGenerator != null) {
+        if (this.signatureGenerator != null) {
             String signature = signatureGenerator.getSignature(query);
             requestBuilder.header(UnleashedConstants.ApiAuthSignature, signature);
         }

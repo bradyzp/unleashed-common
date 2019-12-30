@@ -1,6 +1,5 @@
 package net.jastrab.unleashed.api;
 
-import net.jastrab.unleashed.api.http.UnleashedPath;
 import net.jastrab.unleashed.api.http.UnleashedRequestBuilder;
 import net.jastrab.unleashed.api.http.UnleashedRequestHandler;
 import net.jastrab.unleashed.api.models.AttributeSet;
@@ -30,7 +29,7 @@ public class UnleashedClient {
     public List<AttributeSet> getAttributeSets() {
 
         HttpRequest request = new UnleashedRequestBuilder(apiId)
-                .path(UnleashedPath.ATTRIBUTE_SETS)
+                .path("/AttributeSets")
                 .signWith(signatureGenerator)
                 .get()
                 .build();
