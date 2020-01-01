@@ -2,6 +2,7 @@ package net.jastrab.unleashed.api.http;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.jastrab.unleashed.api.converters.UnleashedObjectMapper;
 import net.jastrab.unleashed.api.models.UnleashedResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +19,7 @@ import java.util.function.Supplier;
 public class UnleashedRequestHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(UnleashedRequestHandler.class);
     private final HttpClient client = HttpClient.newHttpClient();
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = UnleashedObjectMapper.getInstance().getMapper();
 
 
     public class JsonBodyHandler<W> implements HttpResponse.BodyHandler<Supplier<UnleashedResponse<W>>> {
