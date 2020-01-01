@@ -1,5 +1,8 @@
 package net.jastrab.unleashed.api.http;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import net.jastrab.unleashed.api.converters.UnleashedObjectMapper;
 import net.jastrab.unleashed.api.security.ApiSignatureGenerator;
 
 import java.net.URI;
@@ -9,6 +12,7 @@ import java.net.http.HttpRequest;
 public class UnleashedRequestBuilder {
     private static final String SCHEME = "https";
     private static final String AUTHORITY = "api.unleashedsoftware.com";
+    private static final ObjectMapper MAPPER = UnleashedObjectMapper.getInstance().getMapper();
 
     private ApiSignatureGenerator signatureGenerator;
     private String path = "";
@@ -44,9 +48,22 @@ public class UnleashedRequestBuilder {
         return this;
     }
 
+    public UnleashedRequestBuilder post(Object body) throws JsonProcessingException {
+        requestBuilder.POST(HttpRequest.BodyPublishers.ofString(MAPPER.writeValueAsString(body)));
+        return this;
+    }
+
     public HttpRequest getRequest(GetRequest request) {
         query(request.getQuery());
         path(request.getPath());
+        return build();
+    }
+
+    public HttpRequest postRequest(PostRequest request) throws JsonProcessingException {
+        query(request.getQuery());
+        path(request.getPath());
+        post(request.getBody());
+
         return build();
     }
 
