@@ -17,6 +17,7 @@ import java.util.Base64;
  * request to be sent.
  * When a request does not utilize a query string, an empty String "" should be supplied.
  *
+ * @implNote this implementation is *NOT* thread safe
  * @apiNote The query string should not include the '?' prefix
  * @see <a href="https://apidocs.unleashedsoftware.com/AuthenticationHelp">Unleashed API - Authentication</a>
  */

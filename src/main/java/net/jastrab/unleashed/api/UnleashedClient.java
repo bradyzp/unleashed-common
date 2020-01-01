@@ -1,9 +1,13 @@
 package net.jastrab.unleashed.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import net.jastrab.unleashed.api.http.GetRequest;
+import net.jastrab.unleashed.api.http.PostRequest;
 import net.jastrab.unleashed.api.http.UnleashedRequestBuilder;
 import net.jastrab.unleashed.api.http.UnleashedRequestHandler;
 import net.jastrab.unleashed.api.models.AttributeSet;
 import net.jastrab.unleashed.api.models.Product;
+import net.jastrab.unleashed.api.models.PurchaseOrder;
 import net.jastrab.unleashed.api.security.ApiCredential;
 import net.jastrab.unleashed.api.security.ApiSignatureGenerator;
 import net.jastrab.unleashed.api.security.UnleashedCredentialsProvider;
@@ -13,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.net.http.HttpRequest;
 import java.security.InvalidKeyException;
 import java.util.List;
+import java.util.Optional;
 
 public class UnleashedClient {
     private final Logger logger = LoggerFactory.getLogger(UnleashedClient.class);
@@ -24,6 +29,10 @@ public class UnleashedClient {
     private UnleashedClient(ApiCredential credential) throws InvalidKeyException {
         this.signatureGenerator = new ApiSignatureGenerator(credential);
         this.apiId = credential.getId();
+    }
+
+    public static UnleashedClientBuilder builder() {
+        return new UnleashedClientBuilder();
     }
 
     public List<AttributeSet> getAttributeSets() {
@@ -41,17 +50,44 @@ public class UnleashedClient {
 
     public List<Product> getProduct(GetProductRequest getProductRequest) {
         logger.trace("Performing getProduct request, path: {}, query: {}", getProductRequest.getPath(), getProductRequest.getQuery());
-        HttpRequest request = new UnleashedRequestBuilder(apiId)
-                .signWith(signatureGenerator)
-                .getRequest(getProductRequest);
 
-        return handler.getResponse(request, Product.class)
+        return handler.getResponse(prepareGetRequest(getProductRequest), Product.class)
                 .orElseThrow(() -> new RuntimeException("Failed to retrieve product"))
                 .getItems();
     }
 
-    public static UnleashedClientBuilder builder() {
-        return new UnleashedClientBuilder();
+    public Optional<Product> createProduct(CreateProductRequest createProductRequest) throws JsonProcessingException {
+        logger.trace("Creating product from CreateProductRequest");
+
+        return handler.postRequest(preparePostRequest(createProductRequest), Product.class);
+    }
+
+    public List<PurchaseOrder> getPurchaseOrder(GetPurchaseOrderRequest getPurchaseOrderRequest) {
+
+        logger.trace("Performing getPurchaseOrder request, query: {}", getPurchaseOrderRequest.getQuery());
+
+        return handler.getResponse(prepareGetRequest(getPurchaseOrderRequest), PurchaseOrder.class)
+                .orElseThrow(() -> new RuntimeException("Failed to retrieve purchase order(s)"))
+                .getItems();
+    }
+
+    /**
+     * Helper utility to retrieve a single product, returning only the first item if many are returned from the query
+     */
+    public Optional<Product> getFirstProduct(GetProductRequest getProductRequest) {
+        return getProduct(getProductRequest).stream().findFirst();
+    }
+
+    private HttpRequest prepareGetRequest(GetRequest getRequest) {
+        return new UnleashedRequestBuilder(apiId)
+                .signWith(signatureGenerator)
+                .getRequest(getRequest);
+    }
+
+    private HttpRequest preparePostRequest(PostRequest postRequest) throws JsonProcessingException {
+        return new UnleashedRequestBuilder(apiId)
+                .signWith(signatureGenerator)
+                .postRequest(postRequest);
     }
 
     public static class UnleashedClientBuilder {
@@ -63,7 +99,7 @@ public class UnleashedClient {
         }
 
         public UnleashedClient build() throws InvalidKeyException {
-            if(provider == null) {
+            if (provider == null) {
                 throw new IllegalStateException("No credentials provider was supplied, unable to instantiate UnleashedClient");
             }
 
