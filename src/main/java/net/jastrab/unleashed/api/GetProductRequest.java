@@ -10,27 +10,6 @@ import java.util.Map;
 import java.util.Set;
 
 public class GetProductRequest implements GetRequest {
-    private static final String BASE_PATH = "/Products/";
-    private static final String PRODUCT_ID_KEY = "productId";
-    private static final String PRODUCT_BARCODE_KEY = "productBarCode";
-    private static final String PRODUCT_GROUP_KEY = "productGroup";
-    private static final String PRODUCT_CODE_KEY = "productCode";
-    private static final String PRODUCT_DESCRIPTION_KEY = "productDescription";
-    private static final String SORT_KEY = "sort";
-    private static final String ORDER_BY_KEY = "orderBy";
-    private static final String INCLUDE_OBSOLETE_KEY = "includeObsolete";
-    private static final String EXCLUDE_ASSEMBLED_KEY = "excludeAssembled";
-    private static final String EXCLUDE_COMPONENTS_KEY = "excludeComponents";
-
-    private static final Set<String> PAGE_VALID_KEYS = new HashSet<>();
-
-    static {
-        PAGE_VALID_KEYS.add(SORT_KEY);
-        PAGE_VALID_KEYS.add(ORDER_BY_KEY);
-        PAGE_VALID_KEYS.add(INCLUDE_OBSOLETE_KEY);
-        PAGE_VALID_KEYS.add(EXCLUDE_ASSEMBLED_KEY);
-        PAGE_VALID_KEYS.add(EXCLUDE_COMPONENTS_KEY);
-    }
 
     public enum OrderBy {
         LAST_MODIFIED("LastModifiedOn"),
@@ -48,8 +27,8 @@ public class GetProductRequest implements GetRequest {
         }
     }
 
-    private String query;
-    private String path;
+    private final String query;
+    private final String path;
 
     private GetProductRequest(String query, String path) {
         this.query = query;
@@ -57,6 +36,28 @@ public class GetProductRequest implements GetRequest {
     }
 
     public static class GetProductRequestBuilder {
+        private static final String BASE_PATH = "/Products/";
+        private static final String PRODUCT_ID_KEY = "productId";
+        private static final String PRODUCT_BARCODE_KEY = "productBarCode";
+        private static final String PRODUCT_GROUP_KEY = "productGroup";
+        private static final String PRODUCT_CODE_KEY = "productCode";
+        private static final String PRODUCT_DESCRIPTION_KEY = "productDescription";
+        private static final String BRIEF_KEY = "brief";
+        private static final String SORT_KEY = "sort";
+        private static final String ORDER_BY_KEY = "orderBy";
+        private static final String INCLUDE_OBSOLETE_KEY = "includeObsolete";
+        private static final String EXCLUDE_ASSEMBLED_KEY = "excludeAssembled";
+        private static final String EXCLUDE_COMPONENTS_KEY = "excludeComponents";
+
+        private static final Set<String> PAGE_VALID_KEYS = new HashSet<>();
+
+        static {
+            PAGE_VALID_KEYS.add(SORT_KEY);
+            PAGE_VALID_KEYS.add(ORDER_BY_KEY);
+            PAGE_VALID_KEYS.add(INCLUDE_OBSOLETE_KEY);
+            PAGE_VALID_KEYS.add(EXCLUDE_ASSEMBLED_KEY);
+            PAGE_VALID_KEYS.add(EXCLUDE_COMPONENTS_KEY);
+        }
         private final Map<String, Object> parametersMap = new HashMap<>();
 
         /**
@@ -71,6 +72,11 @@ public class GetProductRequest implements GetRequest {
         }
 
         /* Product Request Filters */
+
+        public GetProductRequestBuilder brief(boolean brief) {
+            parametersMap.put(BRIEF_KEY, brief ? "true" : "false");
+            return this;
+        }
 
         public GetProductRequestBuilder productId(String... productIds) {
             String value = String.join(",", productIds);
