@@ -7,31 +7,18 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import java.time.LocalDateTime;
 
-public enum UnleashedObjectMapper {
-    INSTANCE;
+public class UnleashedObjectMapper extends ObjectMapper {
 
-    private final ObjectMapper mapper;
-
-
-    UnleashedObjectMapper() {
-        mapper = new ObjectMapper();
-        mapper.setPropertyNamingStrategy(PropertyNamingStrategy.UPPER_CAMEL_CASE);
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    public UnleashedObjectMapper() {
+        super();
+        setPropertyNamingStrategy(PropertyNamingStrategy.UPPER_CAMEL_CASE);
+        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         SimpleModule module = new SimpleModule("Unleashed Serialization Module");
 
         module.addSerializer(new UnleashedLocalDateTimeSerializer());
         module.addDeserializer(LocalDateTime.class, new UnleashedLocalDateTimeDeserializer());
 
-        mapper.registerModule(module);
-
-    }
-
-    public ObjectMapper getMapper() {
-        return mapper;
-    }
-
-    public static UnleashedObjectMapper getInstance() {
-        return INSTANCE;
+        registerModule(module);
     }
 
 }

@@ -1,7 +1,9 @@
 package net.jastrab.unleashed.api;
 
-import net.jastrab.unleashed.api.http.GetRequest;
+import net.jastrab.unleashed.api.http.HttpMethod;
+import net.jastrab.unleashed.api.http.PaginatedUnleashedRequest;
 import net.jastrab.unleashed.api.http.QueryStringBuilder;
+import net.jastrab.unleashed.api.models.Product;
 import net.jastrab.unleashed.api.models.SortOrder;
 
 import java.util.HashMap;
@@ -9,7 +11,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class GetProductRequest implements GetRequest {
+public class GetProductRequest extends PaginatedUnleashedRequest<Product> {
 
     public enum OrderBy {
         LAST_MODIFIED("LastModifiedOn"),
@@ -31,8 +33,24 @@ public class GetProductRequest implements GetRequest {
     private final String path;
 
     private GetProductRequest(String query, String path) {
+        super(Product.class);
         this.query = query;
         this.path = path;
+    }
+
+    @Override
+    public String getQuery() {
+        return query;
+    }
+
+    @Override
+    public HttpMethod getHttpMethod() {
+        return HttpMethod.GET;
+    }
+
+    @Override
+    public String getPath() {
+        return path;
     }
 
     public static class GetProductRequestBuilder {
@@ -58,13 +76,13 @@ public class GetProductRequest implements GetRequest {
             PAGE_VALID_KEYS.add(EXCLUDE_ASSEMBLED_KEY);
             PAGE_VALID_KEYS.add(EXCLUDE_COMPONENTS_KEY);
         }
+
         private final Map<String, Object> parametersMap = new HashMap<>();
 
         /**
          * Static builder method to create a request for a single specific product specified by its GUID
          *
          * @param guid The unique ID String for a specific existing product, in the format of a uuid4 type GUID
-         *
          * @apiNote All product filters/meta-options are ignored by this builder function
          */
         public static GetProductRequest guid(String guid) {
@@ -157,11 +175,4 @@ public class GetProductRequest implements GetRequest {
         return new GetProductRequestBuilder();
     }
 
-    public String getQuery() {
-        return query;
-    }
-
-    public String getPath() {
-        return path;
-    }
 }

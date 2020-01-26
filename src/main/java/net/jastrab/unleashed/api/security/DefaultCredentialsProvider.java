@@ -8,7 +8,7 @@ public class DefaultCredentialsProvider implements UnleashedCredentialsProvider 
     }
 
     public DefaultCredentialsProvider(final String apiId, final String apiKey) {
-        this.credential = new ApiKeyId(apiId, apiKey);
+        this.credential = new ApiCredentialImpl(apiId, apiKey);
     }
 
     @Override

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public interface CreatableResource extends UnleashedResource {
     enum ResourceOrigin {
-        LOCAL, REMOTE;
+        LOCAL, REMOTE
     }
 
     @JsonIgnore

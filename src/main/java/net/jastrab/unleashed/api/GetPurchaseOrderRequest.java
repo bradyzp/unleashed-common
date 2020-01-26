@@ -1,19 +1,20 @@
 package net.jastrab.unleashed.api;
 
-import net.jastrab.unleashed.api.http.GetRequest;
+import net.jastrab.unleashed.api.http.PaginatedUnleashedRequest;
 import net.jastrab.unleashed.api.http.QueryStringBuilder;
+import net.jastrab.unleashed.api.models.PurchaseOrder;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GetPurchaseOrderRequest implements GetRequest {
+public class GetPurchaseOrderRequest extends PaginatedUnleashedRequest<PurchaseOrder> {
 
     private final String query;
     private final String path;
 
-
     private GetPurchaseOrderRequest(String query, String path) {
+        super(PurchaseOrder.class);
         this.query = query;
         this.path = path;
     }
@@ -70,7 +71,6 @@ public class GetPurchaseOrderRequest implements GetRequest {
         }
 
     }
-
 
     @Override
     public String getQuery() {

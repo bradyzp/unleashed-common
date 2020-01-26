@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import javax.crypto.Mac;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
+import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
@@ -17,33 +18,35 @@ import java.util.Base64;
  * request to be sent.
  * When a request does not utilize a query string, an empty String "" should be supplied.
  *
- * @implNote this implementation is *NOT* thread safe
  * @apiNote The query string should not include the '?' prefix
  * @see <a href="https://apidocs.unleashedsoftware.com/AuthenticationHelp">Unleashed API - Authentication</a>
  */
-public class ApiSignatureGenerator {
-    private Logger logger = LoggerFactory.getLogger(ApiSignatureGenerator.class);
+public final class ApiSignatureGenerator {
+    private static final Logger logger = LoggerFactory.getLogger(ApiSignatureGenerator.class);
     private static final String algorithmName = "HmacSHA256";
-    private Mac mac;
 
-    {
+    private ApiSignatureGenerator() {
+
+    }
+
+    public static String getSignature(Key key, String queryString) {
+        byte[] signature = getInstance(key).doFinal(queryString.getBytes(StandardCharsets.UTF_8));
+
+        return Base64.getEncoder().encodeToString(signature);  // TODO: This is only available in Java 11
+    }
+
+    private static Mac getInstance(Key key) {
         try {
-            mac = Mac.getInstance(algorithmName);
+            final Mac mac = Mac.getInstance(algorithmName);
+            mac.init(key);
+            return mac;
         } catch (NoSuchAlgorithmException e) {
-            // This should never happen, as HmacSHA256 /should/ be supported on all Java VMs
             logger.error("Unexpected Error, unable to instantiate HmacSHA256 Mac instance", e);
-            throw new RuntimeException(algorithmName + " is not available on this platform/system");
+            throw new RuntimeException(algorithmName + " is not available on this platform");
+        } catch (InvalidKeyException e) {
+            logger.error("Invalid signing key provided");
+            throw new RuntimeException("Invalid signing key provided");
         }
-    }
-
-    public ApiSignatureGenerator(ApiCredential credential) throws InvalidKeyException {
-        mac.init(credential.getKey());
-    }
-
-    public String getSignature(String queryString) {
-        byte[] signature = mac.doFinal(queryString.getBytes(StandardCharsets.UTF_8));
-
-        return Base64.getEncoder().encodeToString(signature);
     }
 
 }
