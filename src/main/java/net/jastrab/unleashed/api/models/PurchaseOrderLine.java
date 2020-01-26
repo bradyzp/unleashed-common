@@ -1,11 +1,15 @@
 package net.jastrab.unleashed.api.models;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class PurchaseOrderLine {
-    private final String guid;
+    private final UUID guid;
 
     private Double BCSubTotal;
     private Double BCUnitPrice;
@@ -15,20 +19,34 @@ public class PurchaseOrderLine {
     private LocalDateTime dueDate;
     private LocalDateTime lastModifiedOn;
     private int lineNumber;
-    private double lineTax;
-    private double orderQuantity;
+    private BigDecimal lineTotal = BigDecimal.ZERO;
+    private BigDecimal lineTax = BigDecimal.ZERO;
+    private BigDecimal orderQuantity;
     private Product product;
     private Double receiptQuantity;
     // TAX goes here
-    private double unitPrice;
+    private BigDecimal unitPrice;
     private Double volume;
     private Double weight;
 
-    public PurchaseOrderLine(@JsonProperty("Guid") String guid) {
+    public PurchaseOrderLine(Product product, int orderQuantity) {
+        this.guid = UUID.randomUUID();
+        this.product = product;
+
+        this.orderQuantity = BigDecimal.valueOf(orderQuantity);
+        this.unitPrice = product.getAverageLandPrice();
+        this.lineTotal = this.unitPrice.multiply(this.orderQuantity);
+        this.dueDate = LocalDateTime.now();
+
+    }
+
+
+    @JsonCreator
+    private PurchaseOrderLine(@JsonProperty("Guid") UUID guid) {
         this.guid = guid;
     }
 
-    public String getGuid() {
+    public UUID getGuid() {
         return guid;
     }
 
@@ -96,19 +114,19 @@ public class PurchaseOrderLine {
         this.lineNumber = lineNumber;
     }
 
-    public double getLineTax() {
+    public BigDecimal getLineTax() {
         return lineTax;
     }
 
-    public void setLineTax(double lineTax) {
+    public void setLineTax(BigDecimal lineTax) {
         this.lineTax = lineTax;
     }
 
-    public double getOrderQuantity() {
+    public BigDecimal getOrderQuantity() {
         return orderQuantity;
     }
 
-    public void setOrderQuantity(double orderQuantity) {
+    public void setOrderQuantity(BigDecimal orderQuantity) {
         this.orderQuantity = orderQuantity;
     }
 
@@ -128,11 +146,11 @@ public class PurchaseOrderLine {
         this.receiptQuantity = receiptQuantity;
     }
 
-    public double getUnitPrice() {
+    public BigDecimal getUnitPrice() {
         return unitPrice;
     }
 
-    public void setUnitPrice(double unitPrice) {
+    public void setUnitPrice(BigDecimal unitPrice) {
         this.unitPrice = unitPrice;
     }
 
@@ -150,5 +168,23 @@ public class PurchaseOrderLine {
 
     public void setWeight(Double weight) {
         this.weight = weight;
+    }
+
+    public BigDecimal getLineTotal() {
+        return lineTotal;
+    }
+
+    public void setLineTotal(BigDecimal lineTotal) {
+        this.lineTotal = lineTotal;
+    }
+
+    @Override
+    public String toString() {
+        return "PurchaseOrderLine{" +
+                "guid=" + guid +
+                ", productCode=" + product.getProductCode() +
+                ", lineTotal=" + lineTotal +
+                ", orderQuantity=" + orderQuantity +
+                '}';
     }
 }

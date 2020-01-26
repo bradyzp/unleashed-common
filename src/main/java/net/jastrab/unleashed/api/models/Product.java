@@ -1,35 +1,42 @@
 package net.jastrab.unleashed.api.models;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import net.jastrab.unleashed.api.http.HttpMethod;
+import net.jastrab.unleashed.api.http.MutableResource;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public class Product {
-    private final String guid;
-    private final String productCode;
+public class Product implements MutableResource {
+    private static final String RESOURCE_PATH = "/Products/";
 
-    private Double averageLandPrice;
+    private final UUID guid;
+    private final ResourceOrigin origin;
+    private final String productCode;
+    private final String productDescription;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private final BigDecimal averageLandPrice;
+
     private String barcode;
     private String binLocation;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private LocalDateTime createdOn;
     private boolean isComponent;
-    private boolean isSellable;
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private Double lastCost;
+    private boolean isSellable = true;
+    private BigDecimal lastCost;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String lastModifiedBy;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private LocalDateTime lastModifiedOn;
     private Double minimumOrderQuantity;
     private Double minimumSaleQuantity;
-    private Double minimumSellPrice;
-    private boolean neverDiminishing;
+    private BigDecimal minimumSellPrice;
+    private boolean neverDiminishing = false;
     private String notes;
     private boolean obsolete;
     private Double packSize;
-    private String productDescription;
     private ProductGroup productGroup;
     private Double reOrderPoint;
     private Supplier supplier;
@@ -40,35 +47,66 @@ public class Product {
     private Double depth;
     private Double width;
     private Double weight;
-    // TODO: Add Xero Fields?
 
+    /*Xero Accounting Fields*/
+    private String xeroCostOfGoodsAccount;
+    private String xeroSalesAccount;
+    private String xeroSalesTaxCode;
+    private BigDecimal xeroSalesTaxRate;
+    private String xeroTaxCode;
+    private BigDecimal xeroTaxRate;
 
-    public Product(String productCode) {
-        this.guid = UUID.randomUUID().toString();
+    public Product(String productCode, String productDescription) {
+        this.origin = ResourceOrigin.LOCAL;
+        this.guid = UUID.randomUUID();
         this.productCode = productCode;
+        this.productDescription = productDescription;
+        this.averageLandPrice = null;
     }
 
-    public Product(
-            @JsonProperty("Guid") String guid,
-            @JsonProperty("ProductCode") String productCode) {
+    @JsonCreator
+    private Product(
+            @JsonProperty("Guid") UUID guid,
+            @JsonProperty("ProductCode") String productCode,
+            @JsonProperty("ProductDescription") String productDescription,
+            @JsonProperty("AverageLandPrice") BigDecimal averageLandPrice) {
+        this.origin = ResourceOrigin.REMOTE;
         this.guid = guid;
         this.productCode = productCode;
+        this.productDescription = productDescription;
+        this.averageLandPrice = averageLandPrice;
     }
 
-    public String getGuid() {
+    @Override
+    public UUID getGuid() {
         return guid;
+    }
+
+    @Override
+    public String getBasePath() {
+        return RESOURCE_PATH;
+    }
+
+    @Override
+    public ResourceOrigin getOrigin() {
+        return origin;
+    }
+
+    @Override
+    public HttpMethod getUpdateMethod() {
+        return HttpMethod.POST;
     }
 
     public String getProductCode() {
         return productCode;
     }
 
-    public Double getAverageLandPrice() {
-        return averageLandPrice;
+    public String getProductDescription() {
+        return productDescription;
     }
 
-    public void setAverageLandPrice(Double averageLandPrice) {
-        this.averageLandPrice = averageLandPrice;
+    public BigDecimal getAverageLandPrice() {
+        return averageLandPrice;
     }
 
     public String getBarcode() {
@@ -79,6 +117,10 @@ public class Product {
         this.barcode = barcode;
     }
 
+    /**
+     * @return the product's bin location
+     * @apiNote This does not appear to work currently, the API always returns NULL
+     */
     public String getBinLocation() {
         return binLocation;
     }
@@ -127,11 +169,11 @@ public class Product {
         isSellable = sellable;
     }
 
-    public Double getLastCost() {
+    public BigDecimal getLastCost() {
         return lastCost;
     }
 
-    public void setLastCost(Double lastCost) {
+    public void setLastCost(BigDecimal lastCost) {
         this.lastCost = lastCost;
     }
 
@@ -167,11 +209,11 @@ public class Product {
         this.minimumSaleQuantity = minimumSaleQuantity;
     }
 
-    public Double getMinimumSellPrice() {
+    public BigDecimal getMinimumSellPrice() {
         return minimumSellPrice;
     }
 
-    public void setMinimumSellPrice(Double minimumSellPrice) {
+    public void setMinimumSellPrice(BigDecimal minimumSellPrice) {
         this.minimumSellPrice = minimumSellPrice;
     }
 
@@ -205,14 +247,6 @@ public class Product {
 
     public void setPackSize(Double packSize) {
         this.packSize = packSize;
-    }
-
-    public String getProductDescription() {
-        return productDescription;
-    }
-
-    public void setProductDescription(String productDescription) {
-        this.productDescription = productDescription;
     }
 
     public ProductGroup getProductGroup() {
@@ -278,4 +312,15 @@ public class Product {
     public void setWidth(Double width) {
         this.width = width;
     }
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "guid='" + guid + '\'' +
+                ", productCode='" + productCode + '\'' +
+                ", averageLandPrice=" + averageLandPrice +
+                ", barcode='" + barcode + '\'' +
+                '}';
+    }
+
 }

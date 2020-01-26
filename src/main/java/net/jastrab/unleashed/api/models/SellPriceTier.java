@@ -7,19 +7,19 @@ import net.jastrab.unleashed.api.http.SimpleResource;
 import java.util.Objects;
 import java.util.UUID;
 
-public final class UnitOfMeasure implements SimpleResource {
-    private final UUID guid;
+public final class SellPriceTier implements SimpleResource {
+    private final int tier;
     private final String name;
 
     @JsonCreator
-    private UnitOfMeasure(@JsonProperty("Guid") UUID guid,
+    private SellPriceTier(@JsonProperty("Tier") int tier,
                           @JsonProperty("Name") String name) {
-        this.guid = guid;
+        this.tier = tier;
         this.name = name;
     }
 
-    public UUID getGuid() {
-        return guid;
+    public int getTier() {
+        return tier;
     }
 
     public String getName() {
@@ -28,13 +28,18 @@ public final class UnitOfMeasure implements SimpleResource {
 
     @Override
     public String getBasePath() {
-        return "/UnitOfMeasures";
+        return "/SellPriceTier";
+    }
+
+    @Override
+    public UUID getGuid() {
+        throw new RuntimeException("Guid is not supported on SellPriceTier");
     }
 
     @Override
     public String toString() {
-        return "UnitOfMeasure{" +
-                "guid='" + guid + '\'' +
+        return "SellPriceTier{" +
+                "tier=" + tier +
                 ", name='" + name + '\'' +
                 '}';
     }
@@ -43,13 +48,13 @@ public final class UnitOfMeasure implements SimpleResource {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        UnitOfMeasure that = (UnitOfMeasure) o;
-        return guid.equals(that.guid) &&
+        SellPriceTier that = (SellPriceTier) o;
+        return tier == that.tier &&
                 name.equals(that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(guid, name);
+        return Objects.hash(tier, name);
     }
 }

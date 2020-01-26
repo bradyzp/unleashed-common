@@ -1,15 +1,28 @@
 package net.jastrab.unleashed.api.models;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import net.jastrab.unleashed.api.http.CreatableResource;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
 
-public class PurchaseOrder {
-    private final String guid;
-    private final String orderNumber;
 
+/**
+ * Model class for an Unleashed PurchaseOrder.
+ *
+ * Note that the Unleashed API does not allow for the modification of a PurchaseOrder after it is
+ * created. However, individual purchase order lines can be deleted (but not added).
+ */
+public class PurchaseOrder implements CreatableResource {
+    private final UUID guid;
+    private final ResourceOrigin origin;
+    private String orderNumber;
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String createdBy;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private LocalDateTime createdOn;
     private Double BCSubTotal;
     private Double BCTaxTotal;
@@ -27,26 +40,29 @@ public class PurchaseOrder {
     private String deliverySuburb;
     private double discountRate;
     private Double exchangeRate;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String lastModifiedBy;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private LocalDateTime lastModifiedOn;
     private LocalDateTime orderDate;
 
     private PurchaseOrderStatus orderStatus;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private boolean printed;
-    private List<PurchaseOrderLine> purchaseOrderLines;
+    private Map<String, PurchaseOrderLine> purchaseOrderLines = new HashMap<>();
     private LocalDateTime receivedDate;
     private LocalDateTime requiredDate;
-    private Double subTotal;
+    private BigDecimal subTotal = BigDecimal.ZERO;
     private Supplier supplier;
     private LocalDateTime supplierInvoiceDate;
     private String supplierRef;
 
     // TODO add Tax
 
-    private Double taxRate;
-    private Double taxTotal;
-    private Double total;
+    private BigDecimal taxRate;
+    private BigDecimal taxTotal = BigDecimal.ZERO;
+    private BigDecimal total = BigDecimal.ZERO;
     private Double totalVolume;
     private Double totalWeight;
 
@@ -55,14 +71,87 @@ public class PurchaseOrder {
     private String xeroTaxCode;
 
 
-    public PurchaseOrder(@JsonProperty("Guid") String guid,
-                         @JsonProperty("OrderNumber") String orderNumber) {
+    /**
+     * Create a new PurchaseOrder with the minimum required fields/values
+     * <p>
+     * This constructor will create a PurchaseOrder with the specified supplier,
+     * and will set the order status to 'Parked'. The required date will be set to
+     * the current Local Date Time
+     *
+     * @param supplier Specify the supplier for this purchase order
+     */
+    public PurchaseOrder(Supplier supplier) {
+        this(supplier, LocalDateTime.now());
+    }
+
+    public PurchaseOrder(Supplier supplier, LocalDateTime requiredDate) {
+        this.origin = ResourceOrigin.LOCAL;
+        this.guid = UUID.randomUUID();
+        this.supplier = supplier;
+        this.requiredDate = requiredDate;
+        this.orderStatus = PurchaseOrderStatus.Parked;
+    }
+
+    @JsonCreator
+    private PurchaseOrder(@JsonProperty("Guid") UUID guid,
+                          @JsonProperty("OrderNumber") String orderNumber) {
+        this.origin = ResourceOrigin.REMOTE;
         this.guid = guid;
         this.orderNumber = orderNumber;
     }
 
-    public String getGuid() {
+    /**
+     * Method to add an Order Line to this purchase order.
+     * This method will automatically re-calculate the required
+     * PurchaseOrder subTotal, taxTotal, and total fields based on
+     * the added {@link PurchaseOrderLine}
+     *
+     * @param line A valid PurchaseOrderLine
+     */
+    public void addOrderLine(PurchaseOrderLine line) {
+        line.setLineNumber(purchaseOrderLines.size() + 1);
+        purchaseOrderLines.put(line.getProduct().getProductCode(), line);
+        // TODO: move the calculation into the getters, possibly remove the fields
+        //       or use utility method to recalculate after addition/deletion
+        // TODO Consider using a HashMap internally to store PO Lines, keyed by the product code?
+        //      then flatten into list in the getter & for serialization
+        subTotal = subTotal.add(line.getLineTotal());
+        taxTotal = taxTotal.add(line.getLineTax());
+        total = total.add(subTotal.add(taxTotal));
+    }
+
+    // TODO implement
+    public void removeOrderLine(String productCode) {
+        PurchaseOrderLine line = purchaseOrderLines.remove(productCode);
+        if(line == null) {
+            return;
+        }
+
+        subTotal = subTotal.subtract(line.getLineTotal());
+        taxTotal = taxTotal.subtract(line.getLineTax());
+
+        total = total.subtract(subTotal.add(taxTotal));
+        // todo: recalculate PO line numbers after a removal
+    }
+
+    public void removeOrderLine(Product product) {
+        removeOrderLine(product.getProductCode());
+    }
+
+
+    @Override
+    public UUID getGuid() {
         return guid;
+    }
+
+    @Override
+    public String getBasePath() {
+        return "/PurchaseOrders/" + guid;
+    }
+
+    @Override
+    public ResourceOrigin getOrigin() {
+        return origin;
     }
 
     public String getOrderNumber() {
@@ -245,12 +334,22 @@ public class PurchaseOrder {
         this.printed = printed;
     }
 
-    public List<PurchaseOrderLine> getPurchaseOrderLines() {
-        return purchaseOrderLines;
+    /**
+     * Return an Unmodifiable List containing all of the {@link PurchaseOrderLine}'s
+     * in this PurchaseOrder
+     *
+     * PurchaseOrderLines may not be directly added to the internal list, as the Unleashed
+     * API requires the manual calculation of subTotal, taxTotal, and total fields when
+     * creating a new PurchaseOrder.
+     *
+     * Use the {@link #addOrderLine(PurchaseOrderLine)} method to add a new PurchaseOrderLine
+     */
+    public Collection<PurchaseOrderLine> getPurchaseOrderLines() {
+        return Collections.unmodifiableCollection(purchaseOrderLines.values());
     }
 
     public void setPurchaseOrderLines(List<PurchaseOrderLine> purchaseOrderLines) {
-        this.purchaseOrderLines = purchaseOrderLines;
+        purchaseOrderLines.forEach(line -> this.purchaseOrderLines.put(line.getProduct().getProductCode(), line));
     }
 
     public LocalDateTime getReceivedDate() {
@@ -269,11 +368,11 @@ public class PurchaseOrder {
         this.requiredDate = requiredDate;
     }
 
-    public Double getSubTotal() {
+    public BigDecimal getSubTotal() {
         return subTotal;
     }
 
-    public void setSubTotal(Double subTotal) {
+    public void setSubTotal(BigDecimal subTotal) {
         this.subTotal = subTotal;
     }
 
@@ -301,27 +400,27 @@ public class PurchaseOrder {
         this.supplierRef = supplierRef;
     }
 
-    public Double getTaxRate() {
+    public BigDecimal getTaxRate() {
         return taxRate;
     }
 
-    public void setTaxRate(Double taxRate) {
+    public void setTaxRate(BigDecimal taxRate) {
         this.taxRate = taxRate;
     }
 
-    public Double getTaxTotal() {
+    public BigDecimal getTaxTotal() {
         return taxTotal;
     }
 
-    public void setTaxTotal(Double taxTotal) {
+    public void setTaxTotal(BigDecimal taxTotal) {
         this.taxTotal = taxTotal;
     }
 
-    public Double getTotal() {
+    public BigDecimal getTotal() {
         return total;
     }
 
-    public void setTotal(Double total) {
+    public void setTotal(BigDecimal total) {
         this.total = total;
     }
 
@@ -347,5 +446,14 @@ public class PurchaseOrder {
 
     public void setXeroTaxCode(String xeroTaxCode) {
         this.xeroTaxCode = xeroTaxCode;
+    }
+
+    @Override
+    public String toString() {
+        return "PurchaseOrder{" +
+                "guid=" + guid +
+                ", orderNumber='" + orderNumber + '\'' +
+                ", origin='" + origin + '\'' +
+                '}';
     }
 }

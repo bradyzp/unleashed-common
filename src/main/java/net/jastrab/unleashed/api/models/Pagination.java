@@ -53,4 +53,13 @@ public class Pagination {
         return numberOfPages;
     }
 
+    @Override
+    public String toString() {
+        return "Pagination{" +
+                "numberOfItems=" + numberOfItems +
+                ", pageSize=" + pageSize +
+                ", pageNumber=" + pageNumber +
+                ", numberOfPages=" + numberOfPages +
+                '}';
+    }
 }

@@ -8,42 +8,44 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
-public final class ProductGroup implements SimpleResource {
+public final class CustomerType implements SimpleResource {
+
     private final UUID guid;
-    private final String groupName;
     private final LocalDateTime lastModifiedOn;
+    private final String typeName;
 
     @JsonCreator
-    private ProductGroup(@JsonProperty("Guid") UUID guid,
-                         @JsonProperty("GroupName") String groupName,
-                         @JsonProperty("LastModifiedOn") LocalDateTime lastModifiedOn) {
+    private CustomerType(@JsonProperty("Guid") UUID guid,
+                         @JsonProperty("LastModifiedOn") LocalDateTime lastModifiedOn,
+                         @JsonProperty("TypeName") String typeName) {
         this.guid = guid;
-        this.groupName = groupName;
         this.lastModifiedOn = lastModifiedOn;
+        this.typeName = typeName;
     }
 
     public UUID getGuid() {
         return guid;
     }
 
-    public String getGroupName() {
-        return groupName;
-    }
-
     public LocalDateTime getLastModifiedOn() {
         return lastModifiedOn;
     }
 
-    @Override
-    public String getBasePath() {
-        return "/ProductGroups";
+    public String getTypeName() {
+        return typeName;
     }
 
+    @Override
+    public String getBasePath() {
+        return "/CustomerTypes";
+    }
+
+    @Override
     public String toString() {
-        return "ProductGroup{" +
+        return "CustomerType{" +
                 "guid=" + guid +
-                ", groupName='" + groupName + '\'' +
-                ", lastModifiedOn='" + lastModifiedOn + '\'' +
+                ", lastModifiedOn=" + lastModifiedOn +
+                ", typeName='" + typeName + '\'' +
                 '}';
     }
 
@@ -51,14 +53,14 @@ public final class ProductGroup implements SimpleResource {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ProductGroup that = (ProductGroup) o;
+        CustomerType that = (CustomerType) o;
         return guid.equals(that.guid) &&
-                groupName.equals(that.groupName) &&
-                lastModifiedOn.equals(that.lastModifiedOn);
+                lastModifiedOn.equals(that.lastModifiedOn) &&
+                typeName.equals(that.typeName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(guid, groupName, lastModifiedOn);
+        return Objects.hash(guid, lastModifiedOn, typeName);
     }
 }
