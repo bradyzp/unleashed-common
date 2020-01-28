@@ -4,14 +4,16 @@ import net.jastrab.unleashed.api.http.HttpMethod;
 import net.jastrab.unleashed.api.http.PaginatedUnleashedRequest;
 import net.jastrab.unleashed.api.http.QueryStringBuilder;
 import net.jastrab.unleashed.api.models.Product;
+import net.jastrab.unleashed.api.models.ProductGroup;
 import net.jastrab.unleashed.api.models.SortOrder;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
+import java.util.Objects;
+import java.util.UUID;
 
 public class GetProductRequest extends PaginatedUnleashedRequest<Product> {
+    private static final String BASE_PATH = "/Products/";
 
     public enum OrderBy {
         LAST_MODIFIED("LastModifiedOn"),
@@ -32,10 +34,23 @@ public class GetProductRequest extends PaginatedUnleashedRequest<Product> {
     private final String query;
     private final String path;
 
-    private GetProductRequest(String query, String path) {
+    private GetProductRequest(String query) {
+        super(Product.class);
+        Objects.requireNonNull(query, "Query string cannot be null");
+        this.query = query;
+        this.path = BASE_PATH;
+    }
+
+    private GetProductRequest(String query, int page) {
         super(Product.class);
         this.query = query;
-        this.path = path;
+        this.path = BASE_PATH + "Page/" + page;
+    }
+
+    public GetProductRequest(UUID guid) {
+        super(Product.class);
+        this.query = "";
+        this.path = BASE_PATH + guid.toString();
     }
 
     @Override
@@ -53,8 +68,14 @@ public class GetProductRequest extends PaginatedUnleashedRequest<Product> {
         return path;
     }
 
+    @Override
+    public GetProductRequest forPage(int page) {
+        if(page < 1)
+            throw new IllegalArgumentException("Page value cannot be less than 1");
+        return new GetProductRequest(query, page);
+    }
+
     public static class GetProductRequestBuilder {
-        private static final String BASE_PATH = "/Products/";
         private static final String PRODUCT_ID_KEY = "productId";
         private static final String PRODUCT_BARCODE_KEY = "productBarCode";
         private static final String PRODUCT_GROUP_KEY = "productGroup";
@@ -67,27 +88,19 @@ public class GetProductRequest extends PaginatedUnleashedRequest<Product> {
         private static final String EXCLUDE_ASSEMBLED_KEY = "excludeAssembled";
         private static final String EXCLUDE_COMPONENTS_KEY = "excludeComponents";
 
-        private static final Set<String> PAGE_VALID_KEYS = new HashSet<>();
-
-        static {
-            PAGE_VALID_KEYS.add(SORT_KEY);
-            PAGE_VALID_KEYS.add(ORDER_BY_KEY);
-            PAGE_VALID_KEYS.add(INCLUDE_OBSOLETE_KEY);
-            PAGE_VALID_KEYS.add(EXCLUDE_ASSEMBLED_KEY);
-            PAGE_VALID_KEYS.add(EXCLUDE_COMPONENTS_KEY);
-        }
+//        private static final Set<String> PAGE_VALID_KEYS = new HashSet<>();
+//
+//        // TODO This is wrong (conceptually)
+//        static {
+//            PAGE_VALID_KEYS.add(PRODUCT_GROUP_KEY);
+//            PAGE_VALID_KEYS.add(SORT_KEY);
+//            PAGE_VALID_KEYS.add(ORDER_BY_KEY);
+//            PAGE_VALID_KEYS.add(INCLUDE_OBSOLETE_KEY);
+//            PAGE_VALID_KEYS.add(EXCLUDE_ASSEMBLED_KEY);
+//            PAGE_VALID_KEYS.add(EXCLUDE_COMPONENTS_KEY);
+//        }
 
         private final Map<String, Object> parametersMap = new HashMap<>();
-
-        /**
-         * Static builder method to create a request for a single specific product specified by its GUID
-         *
-         * @param guid The unique ID String for a specific existing product, in the format of a uuid4 type GUID
-         * @apiNote All product filters/meta-options are ignored by this builder function
-         */
-        public static GetProductRequest guid(String guid) {
-            return new GetProductRequest("", BASE_PATH + guid);
-        }
 
         /* Product Request Filters */
 
@@ -105,6 +118,11 @@ public class GetProductRequest extends PaginatedUnleashedRequest<Product> {
 
         public GetProductRequestBuilder productGroup(String productGroup) {
             parametersMap.put(PRODUCT_GROUP_KEY, productGroup);
+            return this;
+        }
+
+        public GetProductRequestBuilder productGroup(ProductGroup productGroup) {
+            parametersMap.put(PRODUCT_GROUP_KEY, productGroup.getGroupName());
             return this;
         }
 
@@ -150,24 +168,11 @@ public class GetProductRequest extends PaginatedUnleashedRequest<Product> {
             return this;
         }
 
-        /**
-         * Return a request for a specific page of products
-         */
-        public GetProductRequest page(int pageNumber) {
-            QueryStringBuilder qsb = QueryStringBuilder.builder();
-            parametersMap.forEach((key, value) -> {
-                if (PAGE_VALID_KEYS.contains(key)) {
-                    qsb.put(key, value);
-                }
-            });
-            return new GetProductRequest(qsb.build(), BASE_PATH + "Page/" + pageNumber);
-        }
-
         public GetProductRequest build() {
             QueryStringBuilder queryStringBuilder = QueryStringBuilder.builder();
             queryStringBuilder.putAll(parametersMap);
 
-            return new GetProductRequest(queryStringBuilder.build(), BASE_PATH);
+            return new GetProductRequest(queryStringBuilder.build());
         }
     }
 
@@ -175,4 +180,25 @@ public class GetProductRequest extends PaginatedUnleashedRequest<Product> {
         return new GetProductRequestBuilder();
     }
 
+    @Override
+    public String toString() {
+        return "GetProductRequest{" +
+                "query='" + query + '\'' +
+                ", path='" + path + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GetProductRequest request = (GetProductRequest) o;
+        return Objects.equals(query, request.query) &&
+                path.equals(request.path);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(query, path);
+    }
 }

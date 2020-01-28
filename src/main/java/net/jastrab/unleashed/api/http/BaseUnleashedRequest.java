@@ -1,8 +1,7 @@
 package net.jastrab.unleashed.api.http;
 
-import net.jastrab.unleashed.api.util.TypeConstructor;
 import net.jastrab.unleashed.api.security.ApiCredential;
-import net.jastrab.unleashed.api.security.ApiSignatureGenerator;
+import net.jastrab.unleashed.api.security.SignatureGenerator;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -31,7 +30,7 @@ public abstract class BaseUnleashedRequest<T> implements UnleashedRequest<T> {
     @Override
     public void sign(ApiCredential credential) {
         this.apiId = credential.getId();
-        this.authSignature = ApiSignatureGenerator.getSignature(credential.getKey(), getQuery());
+        this.authSignature = SignatureGenerator.getSignature(credential.getKey(), getQuery());
     }
 
     @Override

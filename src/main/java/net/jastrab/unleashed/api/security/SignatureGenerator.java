@@ -21,12 +21,11 @@ import java.util.Base64;
  * @apiNote The query string should not include the '?' prefix
  * @see <a href="https://apidocs.unleashedsoftware.com/AuthenticationHelp">Unleashed API - Authentication</a>
  */
-public final class ApiSignatureGenerator {
-    private static final Logger logger = LoggerFactory.getLogger(ApiSignatureGenerator.class);
+public final class SignatureGenerator {
+    private static final Logger logger = LoggerFactory.getLogger(SignatureGenerator.class);
     private static final String algorithmName = "HmacSHA256";
 
-    private ApiSignatureGenerator() {
-
+    private SignatureGenerator() {
     }
 
     public static String getSignature(Key key, String queryString) {
