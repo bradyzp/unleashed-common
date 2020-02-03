@@ -34,7 +34,7 @@ public class GetProductRequest extends PaginatedUnleashedRequest<Product> {
     private final String query;
     private final String path;
 
-    private GetProductRequest(String query) {
+    protected GetProductRequest(String query) {
         super(Product.class);
         Objects.requireNonNull(query, "Query string cannot be null");
         this.query = query;
@@ -71,7 +71,7 @@ public class GetProductRequest extends PaginatedUnleashedRequest<Product> {
     @Override
     public GetProductRequest forPage(int page) {
         if(page < 1)
-            throw new IllegalArgumentException("Page value cannot be less than 1");
+            throw new IllegalArgumentException("Page number cannot be less than 1");
         return new GetProductRequest(query, page);
     }
 
