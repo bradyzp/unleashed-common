@@ -15,9 +15,11 @@ import java.lang.reflect.Type;
  * @param <T>
  */
 public abstract class BaseUnleashedRequest<T> implements UnleashedRequest<T> {
+    private final Type responseType;
     private String apiId;
     private String authSignature;
-    private final Type responseType;
+    private String apiAuthority = AUTHORITY;
+    private String apiScheme = SCHEME;
 
     protected BaseUnleashedRequest(ParameterizedType parameterizedType) {
         this.responseType = parameterizedType;
@@ -47,4 +49,28 @@ public abstract class BaseUnleashedRequest<T> implements UnleashedRequest<T> {
     public Type getResponseType() {
         return responseType;
     }
+
+    @Override
+    public String getAuthority() {
+        return this.apiAuthority;
+    }
+
+    @Override
+    public void setAuthority(String authority) {
+        this.apiAuthority = authority;
+    }
+
+    @Override
+    public String getScheme() {
+        return this.apiScheme;
+    }
+
+    @Override
+    public void setScheme(String scheme) {
+        if(!"http".equals(scheme) && !"https".equals(scheme)) {
+            throw new IllegalArgumentException("Invalid scheme supplied, must be 'http' or 'https'");
+        }
+        this.apiScheme = scheme;
+    }
 }
+

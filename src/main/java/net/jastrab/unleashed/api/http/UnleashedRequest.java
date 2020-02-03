@@ -13,6 +13,18 @@ public interface UnleashedRequest<T> {
     String AUTHORITY = "api.unleashedsoftware.com";
     String CONTENT_TYPE = "application/json";
 
+    default String getScheme() {
+        return SCHEME;
+    }
+
+    void setScheme(String scheme);
+
+    default String getAuthority() {
+        return AUTHORITY;
+    }
+
+    void setAuthority(String authority);
+
     /**
      * Get the full URI for the request, including path and query parameters
      *
@@ -20,7 +32,7 @@ public interface UnleashedRequest<T> {
      */
     default URI getUri() {
         try {
-            return new URI(SCHEME, AUTHORITY, getPath(), getQuery(), null);
+            return new URI(getScheme(), getAuthority(), getPath(), getQuery(), null);
         } catch (URISyntaxException e) {
             throw new RuntimeException("Failed to generate request URI", e);
         }
