@@ -4,6 +4,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("unit")
@@ -33,6 +35,24 @@ class QueryStringBuilderTest {
     void buildEmptyQuery() {
         String queryString = QueryStringBuilder.builder().build();
         assertEquals("", queryString);
+
+    }
+
+    @Test
+    @DisplayName("Test usage of QueryStringBuilder map constructor")
+    void buildMultiParamMap() {
+        Map<String, Object> parameters = Map.of(
+                "param1", 1,
+                "param2", 2,
+                "param3", "value3");
+
+        String queryString = QueryStringBuilder.builder().putAll(parameters).build();
+
+        assertAll("Parameters are all present", () -> {
+            assertTrue(queryString.contains("param1=1"), "param1 not present");
+            assertTrue(queryString.contains("param2=2"), "param2 not present");
+            assertTrue(queryString.contains("param3=value3"), "param3 not present");
+        });
 
     }
 }
