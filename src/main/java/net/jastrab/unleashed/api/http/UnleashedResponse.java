@@ -1,7 +1,8 @@
-package net.jastrab.unleashed.api.models;
+package net.jastrab.unleashed.api.http;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import net.jastrab.unleashed.api.http.UnleashedPagination;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,17 +10,17 @@ import java.util.Optional;
 
 public class UnleashedResponse<T> {
     private int statusCode;
-    private final Pagination pagination;
+    private final UnleashedPagination pagination;
     private final List<T> items = new ArrayList<>();
 
     @JsonCreator
-    public UnleashedResponse(@JsonProperty("Pagination") Pagination pagination,
+    public UnleashedResponse(@JsonProperty("Pagination") UnleashedPagination pagination,
                              @JsonProperty("Items") List<T> items) {
         this.pagination = pagination;
         this.items.addAll(items);
     }
 
-    public Optional<Pagination> getPagination() {
+    public Optional<UnleashedPagination> getPagination() {
         return Optional.ofNullable(pagination);
     }
 

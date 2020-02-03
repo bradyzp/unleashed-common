@@ -1,6 +1,6 @@
 package net.jastrab.unleashed.api.util;
 
-import net.jastrab.unleashed.api.models.UnleashedResponse;
+import net.jastrab.unleashed.api.http.UnleashedResponse;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;

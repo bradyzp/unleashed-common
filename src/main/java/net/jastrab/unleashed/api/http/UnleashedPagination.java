@@ -1,4 +1,4 @@
-package net.jastrab.unleashed.api.models;
+package net.jastrab.unleashed.api.http;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -21,16 +21,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @see <a href="https://apidocs.unleashedsoftware.com/Pagination">Unleashed API Doc - Pagination</a>
  *
  * */
-public class Pagination {
+public class UnleashedPagination {
     private final int numberOfItems;
     private final int pageSize;
     private final int pageNumber;
     private final int numberOfPages;
 
-    public Pagination(@JsonProperty("NumberOfItems") int numberOfItems,
-                      @JsonProperty("PageSize") int pageSize,
-                      @JsonProperty("PageNumber") int pageNumber,
-                      @JsonProperty("NumberOfPages") int numberOfPages) {
+    public UnleashedPagination(@JsonProperty("NumberOfItems") int numberOfItems,
+                               @JsonProperty("PageSize") int pageSize,
+                               @JsonProperty("PageNumber") int pageNumber,
+                               @JsonProperty("NumberOfPages") int numberOfPages) {
         this.numberOfItems = numberOfItems;
         this.pageSize = pageSize;
         this.pageNumber = pageNumber;

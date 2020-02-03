@@ -1,7 +1,6 @@
 package net.jastrab.unleashed.api.http;
 
 
-import net.jastrab.unleashed.api.models.UnleashedResponse;
 import net.jastrab.unleashed.api.util.TypeConstructor;
 
 /**
