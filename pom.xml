@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>net.jastrab</groupId>
-    <artifactId>unleashed-java-core</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <artifactId>unleashed-common</artifactId>
+    <version>0.5.0-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -115,7 +115,27 @@
                     </dependency>
                 </dependencies>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.2.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub bradyzp Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/bradyzp/mvn-packages</url>
+        </repository>
+    </distributionManagement>
 
 </project>
