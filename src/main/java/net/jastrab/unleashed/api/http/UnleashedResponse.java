@@ -2,7 +2,6 @@ package net.jastrab.unleashed.api.http;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import net.jastrab.unleashed.api.http.UnleashedPagination;
 
 import java.util.ArrayList;
 import java.util.List;

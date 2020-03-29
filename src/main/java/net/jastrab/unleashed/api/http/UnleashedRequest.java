@@ -3,40 +3,12 @@ package net.jastrab.unleashed.api.http;
 import net.jastrab.unleashed.api.security.ApiCredential;
 
 import java.lang.reflect.Type;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 
 public interface UnleashedRequest<T> {
-    String SCHEME = "https";
     String AUTHORITY = "api.unleashedsoftware.com";
     String CONTENT_TYPE = "application/json";
-
-    default String getScheme() {
-        return SCHEME;
-    }
-
-    void setScheme(String scheme);
-
-    default String getAuthority() {
-        return AUTHORITY;
-    }
-
-    void setAuthority(String authority);
-
-    /**
-     * Get the full URI for the request, including path and query parameters
-     *
-     * @return the URI for the request, with path and query parameters
-     */
-    default URI getUri() {
-        try {
-            return new URI(getScheme(), getAuthority(), getPath(), getQuery(), null);
-        } catch (URISyntaxException e) {
-            throw new RuntimeException("Failed to generate request URI", e);
-        }
-    }
 
     /**
      * Get the complete map of headers for the request, including signature

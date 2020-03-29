@@ -2,6 +2,7 @@ package net.jastrab.unleashed.api.models;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import net.jastrab.unleashed.api.http.HttpMethod;
 import net.jastrab.unleashed.api.http.MutableResource;
 
@@ -9,13 +10,14 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@JsonPropertyOrder({"guid", "productCode"})
 public class Product implements MutableResource {
     private static final String RESOURCE_PATH = "/Products/";
 
     private final UUID guid;
     private final ResourceOrigin origin;
     private final String productCode;
-    private final String productDescription;
+    private String productDescription;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private final BigDecimal averageLandPrice;
 
@@ -26,6 +28,7 @@ public class Product implements MutableResource {
     private boolean isComponent;
     private boolean isSellable = true;
     private BigDecimal lastCost;
+    private BigDecimal defaultPurchasePrice;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String lastModifiedBy;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -39,7 +42,7 @@ public class Product implements MutableResource {
     private Double packSize;
     private ProductGroup productGroup;
     private Double reOrderPoint;
-    private Supplier supplier;
+    private SupplierWithProductCode supplier;
     private boolean taxablePurchase;
     private boolean taxableSales;
     private UnitOfMeasure unitOfMeasure;
@@ -56,11 +59,10 @@ public class Product implements MutableResource {
     private String xeroTaxCode;
     private BigDecimal xeroTaxRate;
 
-    public Product(String productCode, String productDescription) {
+    public Product(String productCode) {
         this.origin = ResourceOrigin.LOCAL;
         this.guid = UUID.randomUUID();
         this.productCode = productCode;
-        this.productDescription = productDescription;
         this.averageLandPrice = null;
     }
 
@@ -103,6 +105,10 @@ public class Product implements MutableResource {
 
     public String getProductDescription() {
         return productDescription;
+    }
+
+    public void setProductDescription(String productDescription) {
+        this.productDescription = productDescription;
     }
 
     public BigDecimal getAverageLandPrice() {
@@ -175,6 +181,14 @@ public class Product implements MutableResource {
 
     public void setLastCost(BigDecimal lastCost) {
         this.lastCost = lastCost;
+    }
+
+    public BigDecimal getDefaultPurchasePrice() {
+        return defaultPurchasePrice;
+    }
+
+    public void setDefaultPurchasePrice(BigDecimal defaultPurchasePrice) {
+        this.defaultPurchasePrice = defaultPurchasePrice;
     }
 
     public String getLastModifiedBy() {
@@ -265,11 +279,11 @@ public class Product implements MutableResource {
         this.reOrderPoint = reOrderPoint;
     }
 
-    public Supplier getSupplier() {
+    public SupplierWithProductCode getSupplier() {
         return supplier;
     }
 
-    public void setSupplier(Supplier supplier) {
+    public void setSupplier(SupplierWithProductCode supplier) {
         this.supplier = supplier;
     }
 
@@ -318,7 +332,7 @@ public class Product implements MutableResource {
         return "Product{" +
                 "guid='" + guid + '\'' +
                 ", productCode='" + productCode + '\'' +
-                ", averageLandPrice=" + averageLandPrice +
+                ", defaultPurchasePrice=" + defaultPurchasePrice +
                 ", barcode='" + barcode + '\'' +
                 '}';
     }

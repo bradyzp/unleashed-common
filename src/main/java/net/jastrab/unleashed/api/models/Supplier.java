@@ -2,12 +2,14 @@ package net.jastrab.unleashed.api.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import net.jastrab.unleashed.api.http.SimpleResource;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Supplier {
-    private final String guid;
+public class Supplier implements SimpleResource {
+    private final UUID guid;
     private final String supplierCode;
     private String bankAccount;
     private String bankBranch;
@@ -29,14 +31,19 @@ public class Supplier {
     private String website;
     private String xeroContactId;
 
-    public Supplier(@JsonProperty("Guid") String guid,
+    public Supplier(@JsonProperty("Guid") UUID guid,
                     @JsonProperty("SupplierCode") String supplierCode) {
         this.guid = guid;
         this.supplierCode = supplierCode;
     }
 
-    public String getGuid() {
+    public UUID getGuid() {
         return guid;
+    }
+
+    @Override
+    public String getBasePath() {
+        return "/Suppliers";
     }
 
     public String getSupplierCode() {
