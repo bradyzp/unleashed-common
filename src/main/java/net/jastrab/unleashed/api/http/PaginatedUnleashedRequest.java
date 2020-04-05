@@ -5,7 +5,7 @@ import net.jastrab.unleashed.api.util.TypeConstructor;
 
 /**
  * Base abstract class for a request which is expected to return a paginated response
- * i.e. a response which is wrapped in a {@link UnleashedResponse}
+ * i.e. a response which is wrapped in a {@link PaginatedUnleashedResponse}
  *
  * @param <T>
  */

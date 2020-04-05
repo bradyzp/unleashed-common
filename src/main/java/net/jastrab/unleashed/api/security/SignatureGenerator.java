@@ -10,6 +10,7 @@ import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import java.util.Objects;
 
 /**
  * Utility Class used to calculate an authentication signature for an http request to the Unleashed API
@@ -29,6 +30,8 @@ public final class SignatureGenerator {
     }
 
     public static String getSignature(Key key, String queryString) {
+        Objects.requireNonNull(key, "Key must not be null");
+        Objects.requireNonNull(queryString, "Query string must not be null");
         byte[] signature = getInstance(key).doFinal(queryString.getBytes(StandardCharsets.UTF_8));
 
         return Base64.getEncoder().encodeToString(signature);  // TODO: This is only available in Java 11

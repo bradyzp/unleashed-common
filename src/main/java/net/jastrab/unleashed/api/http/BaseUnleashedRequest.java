@@ -1,23 +1,19 @@
 package net.jastrab.unleashed.api.http;
 
-import net.jastrab.unleashed.api.security.ApiCredential;
-import net.jastrab.unleashed.api.security.SignatureGenerator;
-
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 /**
  * The base abstract class for a request which is expected to return an object of the same type & shape as the request
- *
+ * <p>
  * This should be the base for any create item requests, as the API returns an unwrapped object representing the
  * newly created item, as opposed to get requests which typically return a list of items wrapped in an UnleashedResponse
  * object, which contains pagination information
+ *
  * @param <T>
  */
 public abstract class BaseUnleashedRequest<T> implements UnleashedRequest<T> {
     private final Type responseType;
-    private String apiId;
-    private String authSignature;
 
     protected BaseUnleashedRequest(ParameterizedType parameterizedType) {
         this.responseType = parameterizedType;
@@ -25,22 +21,6 @@ public abstract class BaseUnleashedRequest<T> implements UnleashedRequest<T> {
 
     protected BaseUnleashedRequest(Class<T> responseType) {
         this.responseType = responseType;
-    }
-
-    @Override
-    public void sign(ApiCredential credential) {
-        this.apiId = credential.getId();
-        this.authSignature = SignatureGenerator.getSignature(credential.getKey(), getQuery());
-    }
-
-    @Override
-    public String getAuthSignature() {
-        return authSignature;
-    }
-
-    @Override
-    public String getApiId() {
-        return apiId;
     }
 
     @Override

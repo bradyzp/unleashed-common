@@ -7,14 +7,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class UnleashedResponse<T> {
+public class PaginatedUnleashedResponse<T> {
     private int statusCode;
     private final UnleashedPagination pagination;
     private final List<T> items = new ArrayList<>();
 
     @JsonCreator
-    public UnleashedResponse(@JsonProperty("Pagination") UnleashedPagination pagination,
-                             @JsonProperty("Items") List<T> items) {
+    public PaginatedUnleashedResponse(@JsonProperty("Pagination") UnleashedPagination pagination,
+                                      @JsonProperty("Items") List<T> items) {
         this.pagination = pagination;
         this.items.addAll(items);
     }

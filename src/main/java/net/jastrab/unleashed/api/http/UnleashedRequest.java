@@ -16,13 +16,9 @@ public interface UnleashedRequest<T> {
      * @return a map of HTTP headers for the request
      */
     default Map<String, List<String>> getHeaders() {
-        if(!isSigned())
-            throw new IllegalStateException("Request is not signed");
         return Map.of(
                 "Content-Type", List.of(CONTENT_TYPE),
-                "Accept", List.of(CONTENT_TYPE),
-                "api-auth-id", List.of(getApiId()),
-                "api-auth-signature", List.of(getAuthSignature())
+                "Accept", List.of(CONTENT_TYPE)
         );
     }
 
@@ -34,10 +30,6 @@ public interface UnleashedRequest<T> {
         return "";
     }
 
-    String getApiId();
-
-    String getAuthSignature();
-
     /**
      * Get the request body for the API request. Default is null
      * @return
@@ -47,11 +39,5 @@ public interface UnleashedRequest<T> {
     }
 
     Type getResponseType();
-
-    void sign(ApiCredential credential);
-
-    default boolean isSigned() {
-        return getAuthSignature() != null && getApiId() != null;
-    }
 
 }

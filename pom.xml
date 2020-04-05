@@ -6,7 +6,7 @@
 
     <groupId>net.jastrab</groupId>
     <artifactId>unleashed-common</artifactId>
-    <version>0.5-SNAPSHOT</version>
+    <version>0.5.3-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -134,7 +134,7 @@
         <repository>
             <id>github</id>
             <name>GitHub bradyzp Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/bradyzp/mvn-packages</url>
+            <url>https://maven.pkg.github.com/bradyzp/unleashed-common</url>
         </repository>
     </distributionManagement>
 </project>

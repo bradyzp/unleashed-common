@@ -1,6 +1,6 @@
 package net.jastrab.unleashed.api.util;
 
-import net.jastrab.unleashed.api.http.UnleashedResponse;
+import net.jastrab.unleashed.api.http.PaginatedUnleashedResponse;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -16,7 +16,7 @@ public final class TypeConstructor {
 
             @Override
             public Type getRawType() {
-                return UnleashedResponse.class;
+                return PaginatedUnleashedResponse.class;
             }
 
             @Override
