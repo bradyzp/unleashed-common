@@ -6,7 +6,7 @@
 
     <groupId>net.jastrab</groupId>
     <artifactId>unleashed-common</artifactId>
-    <version>0.5.3-SNAPSHOT</version>
+    <version>0.5.9-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

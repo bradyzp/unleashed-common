@@ -11,7 +11,7 @@ import java.util.*;
 
 /**
  * Model class for an Unleashed PurchaseOrder.
- *
+ * <p>
  * Note that the Unleashed API does not allow for the modification of a PurchaseOrder after it is
  * created. However, individual purchase order lines can be deleted (but not added).
  */
@@ -62,7 +62,6 @@ public class PurchaseOrder implements CreatableResource {
 
     private BigDecimal taxRate;
     private BigDecimal taxTotal = BigDecimal.ZERO;
-    private BigDecimal total = BigDecimal.ZERO;
     private Double totalVolume;
     private Double totalWeight;
 
@@ -117,21 +116,19 @@ public class PurchaseOrder implements CreatableResource {
         //      then flatten into list in the getter & for serialization
         subTotal = subTotal.add(line.getLineTotal());
         taxTotal = taxTotal.add(line.getLineTax());
-        total = total.add(subTotal.add(taxTotal));
     }
 
     // TODO implement
     public void removeOrderLine(String productCode) {
         PurchaseOrderLine line = purchaseOrderLines.remove(productCode);
-        if(line == null) {
+        if (line == null) {
             return;
         }
 
         subTotal = subTotal.subtract(line.getLineTotal());
         taxTotal = taxTotal.subtract(line.getLineTax());
 
-        total = total.subtract(subTotal.add(taxTotal));
-        // todo: recalculate PO line numbers after a removal
+        // TODO: Resequence order line numbers after removal of an item
     }
 
     public void removeOrderLine(Product product) {
@@ -146,7 +143,7 @@ public class PurchaseOrder implements CreatableResource {
 
     @Override
     public String getBasePath() {
-        return "/PurchaseOrders/" + guid;
+        return "/PurchaseOrders/";
     }
 
     @Override
@@ -337,11 +334,11 @@ public class PurchaseOrder implements CreatableResource {
     /**
      * Return an Unmodifiable List containing all of the {@link PurchaseOrderLine}'s
      * in this PurchaseOrder
-     *
+     * <p>
      * PurchaseOrderLines may not be directly added to the internal list, as the Unleashed
      * API requires the manual calculation of subTotal, taxTotal, and total fields when
      * creating a new PurchaseOrder.
-     *
+     * <p>
      * Use the {@link #addOrderLine(PurchaseOrderLine)} method to add a new PurchaseOrderLine
      */
     public Collection<PurchaseOrderLine> getPurchaseOrderLines() {
@@ -349,7 +346,7 @@ public class PurchaseOrder implements CreatableResource {
     }
 
     public void setPurchaseOrderLines(List<PurchaseOrderLine> purchaseOrderLines) {
-        purchaseOrderLines.forEach(line -> this.purchaseOrderLines.put(line.getProduct().getProductCode(), line));
+        purchaseOrderLines.forEach(this::addOrderLine);
     }
 
     public LocalDateTime getReceivedDate() {
@@ -417,11 +414,7 @@ public class PurchaseOrder implements CreatableResource {
     }
 
     public BigDecimal getTotal() {
-        return total;
-    }
-
-    public void setTotal(BigDecimal total) {
-        this.total = total;
+        return subTotal.add(taxTotal);
     }
 
     public Double getTotalVolume() {
@@ -453,7 +446,9 @@ public class PurchaseOrder implements CreatableResource {
         return "PurchaseOrder{" +
                 "guid=" + guid +
                 ", orderNumber='" + orderNumber + '\'' +
-                ", origin='" + origin + '\'' +
+                ", subTotal=" + subTotal +
+                ", taxTotal=" + taxTotal +
+                ", total=" + getTotal() +
                 '}';
     }
 }

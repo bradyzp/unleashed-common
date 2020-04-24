@@ -29,17 +29,16 @@ public class PurchaseOrderLine {
     private Double volume;
     private Double weight;
 
-    public PurchaseOrderLine(Product product, int orderQuantity) {
+    public PurchaseOrderLine(Product product, BigDecimal unitPrice, int orderQuantity) {
         this.guid = UUID.randomUUID();
         this.product = product;
 
         this.orderQuantity = BigDecimal.valueOf(orderQuantity);
-        this.unitPrice = product.getAverageLandPrice();
+        this.unitPrice = unitPrice;
         this.lineTotal = this.unitPrice.multiply(this.orderQuantity);
         this.dueDate = LocalDateTime.now();
 
     }
-
 
     @JsonCreator
     private PurchaseOrderLine(@JsonProperty("Guid") UUID guid) {
